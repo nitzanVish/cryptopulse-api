@@ -2,8 +2,8 @@
  * Coin Config Service - Business logic layer for coin configuration
  */
 
-import coinConfigRepository from '../repositories/CoinConfigRepository';
-import type { ICoinConfig } from '../models/CoinConfig';
+import coinConfigRepository from '../repositories/CoinConfigRepository.js';
+import type { ICoinConfig } from '../models/CoinConfig.js';
 
 export class CoinConfigService {
   /**

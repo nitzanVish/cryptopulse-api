@@ -2,8 +2,8 @@
  * Coin Config Repository - Data access layer for CoinConfig model
  */
 
-import { CoinConfig, ICoinConfig } from '../models/CoinConfig';
-import { LoggerServiceInstance } from '../utils/LoggerService';
+import { CoinConfig, ICoinConfig } from '../models/CoinConfig.js';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
 
 export class CoinConfigRepository {
   /**

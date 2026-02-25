@@ -3,12 +3,12 @@
  * Uses Redis Distributed Lock to prevent duplicate executions across multiple instances
  */
 import cron from 'node-cron';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { config } from '../config';
-import RedisService from '../services/RedisService';
-import sentimentQueue from './queue';
-import coinConfigService from '../services/CoinConfigService';
-import { SCHEDULER_LOCK } from '../constants/redis';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { config } from '../config/index.js';
+import RedisService from '../services/RedisService.js';
+import sentimentQueue from './queue.js';
+import coinConfigService from '../services/CoinConfigService.js';
+import { SCHEDULER_LOCK } from '../constants/redis.js';
 
 class SentimentScheduler {
   private task: cron.ScheduledTask | null = null;

@@ -3,7 +3,7 @@
  * Uses Zod for type-safe validation
  */
 
-import env from './env';
+import env from './env.js';
 
 export const config = {
   env: env.NODE_ENV,

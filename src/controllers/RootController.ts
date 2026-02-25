@@ -3,7 +3,7 @@
  */
 
 import { Request, Response } from 'express';
-import { MESSAGES } from '../constants/messages';
+import { MESSAGES } from '../constants/messages.js';
 
 export class RootController {
   static getInfo(_req: Request, res: Response): void {

@@ -3,11 +3,11 @@
  */
 
 import { Request, Response } from 'express';
-import DatabaseService from '../services/DatabaseService';
-import RedisService from '../services/RedisService';
-import sentimentQueue from '../jobs/queue';
-import { HEALTH_STATUS } from '../constants/health';
-import { HTTP_STATUS } from '../constants/httpStatus';
+import DatabaseService from '../services/DatabaseService.js';
+import RedisService from '../services/RedisService.js';
+import sentimentQueue from '../jobs/queue.js';
+import { HEALTH_STATUS } from '../constants/health.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
 
 export class HealthController {
   /**

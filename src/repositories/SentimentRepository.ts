@@ -2,9 +2,9 @@
  * Sentiment Repository - Data access layer for Sentiment model
  */
 
-import { Sentiment } from '../models/Sentiment';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import type { SentimentAnalysisResult } from '../types/sentiment';
+import { Sentiment } from '../models/Sentiment.js';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import type { SentimentAnalysisResult } from '../types/sentiment.js';
 
 export class SentimentRepository {
   /**

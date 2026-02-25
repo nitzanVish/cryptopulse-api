@@ -4,8 +4,8 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
-import { AppError } from '../utils/errors';
-import { HTTP_STATUS } from '../constants/httpStatus';
+import { AppError } from '../utils/errors.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
 
 /**
  * Generic validation middleware that validates body, query, and params

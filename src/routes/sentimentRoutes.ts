@@ -3,9 +3,9 @@
  */
 
 import { Router } from 'express';
-import sentimentController from '../controllers/SentimentController';
-import { validate } from '../middlewares/validate.middleware';
-import { getSentimentSchema } from '../dtos/sentiment.dto';
+import sentimentController from '../controllers/SentimentController.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { getSentimentSchema } from '../dtos/sentiment.dto.js';
 
 const router = Router();
 

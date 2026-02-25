@@ -2,15 +2,15 @@
  * Sentiment Service - Orchestrates news fetching, AI analysis, and storage
  */
 
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import newsService from './NewsService';
-import aiService from './AiService';
-import sentimentRepository from '../repositories/SentimentRepository';
-import RedisService from './RedisService';
-import { NotFoundError } from '../utils/errors';
-import type { SentimentAnalysisResult, SentimentResponse } from '../types/sentiment';
-import { SENTIMENT_CONFIG } from '../constants/sentiment';
-import { MESSAGES } from '../constants/messages';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import newsService from './NewsService.js';
+import aiService from './AiService.js';
+import sentimentRepository from '../repositories/SentimentRepository.js';
+import RedisService from './RedisService.js';
+import { NotFoundError } from '../utils/errors.js';
+import type { SentimentAnalysisResult, SentimentResponse } from '../types/sentiment.js';
+import { SENTIMENT_CONFIG } from '../constants/sentiment.js';
+import { MESSAGES } from '../constants/messages.js';
 
 export class SentimentService {
   /**

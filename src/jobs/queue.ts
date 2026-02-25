@@ -3,11 +3,11 @@
  */
 
 import { Queue } from 'bullmq';
-import RedisService from '../services/RedisService';
-import { config } from '../config';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import type { JobData } from '../types/job';
-import { JOB_NAMES, QUEUE_NAMES } from '../constants/job';
+import RedisService from '../services/RedisService.js';
+import { config } from '../config/index.js';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import type { JobData } from '../types/job.js';
+import { JOB_NAMES, QUEUE_NAMES } from '../constants/job.js';
 
 class SentimentQueue {
   private queue: Queue<JobData>;

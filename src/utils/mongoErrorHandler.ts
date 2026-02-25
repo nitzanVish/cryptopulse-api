@@ -3,8 +3,8 @@
  * Normalizes MongoDB-specific errors to AppError format
  */
 
-import { AppError } from './errors';
-import { MESSAGES } from '../constants/messages';
+import { AppError } from './errors.js';
+import { MESSAGES } from '../constants/messages.js';
 
 const handleCastErrorDB = (err: any): AppError => {
   const message = MESSAGES.ERRORS.MONGO.INVALID_FIELD(err.path, err.value);

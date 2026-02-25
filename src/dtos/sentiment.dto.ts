@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { VALIDATION_MESSAGES } from '../constants/validation';
+import { VALIDATION_MESSAGES } from '../constants/validation.js';
 
 /**
  * Schema for get sentiment endpoint

@@ -4,9 +4,9 @@
  */
 
 import http from 'http';
-import { App } from './app';
-import { LoggerServiceInstance } from './utils/LoggerService';
-import { config } from './config';
+import { App } from './app.js';
+import { LoggerServiceInstance } from './utils/LoggerService.js';
+import { config } from './config/index.js';
 
 const startServer = async (): Promise<void> => {
   try {

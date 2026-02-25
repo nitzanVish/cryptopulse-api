@@ -3,8 +3,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import sentimentService from '../services/SentimentService';
-import { GetSentimentDto } from '../dtos/sentiment.dto';
+import sentimentService from '../services/SentimentService.js';
+import { GetSentimentDto } from '../dtos/sentiment.dto.js';
 
 export class SentimentController {
   /**

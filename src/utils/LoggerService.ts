@@ -4,7 +4,7 @@
 
 import winston from 'winston';
 import path from 'path';
-import { config } from '../config';
+import { config } from '../config/index.js';
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 

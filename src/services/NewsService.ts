@@ -2,15 +2,15 @@
  * News Service - Fetches cryptocurrency news from external APIs
  */
 
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { config } from '../config';
-import { NEWS_CONFIG, NEWS_API_CONFIG, CRYPTOCOMPARE_CONFIG } from '../constants/news';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { config } from '../config/index.js';
+import { NEWS_CONFIG, NEWS_API_CONFIG, CRYPTOCOMPARE_CONFIG } from '../constants/news.js';
 import type {
   NewsHeadline,
   CryptoCompareResponse,
   NewsAPIResponse,
   NewsAPIArticle,
-} from '../types/news';
+} from '../types/news.js';
 
 export class NewsService {
   /**

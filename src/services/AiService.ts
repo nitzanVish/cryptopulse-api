@@ -3,13 +3,13 @@
  */
 
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
-import { ApiError } from '../utils/errors';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { config } from '../config';
-import { HTTP_STATUS } from '../constants/httpStatus';
-import { AI_CONFIG } from '../constants/ai';
-import { buildGeminiPrompt } from '../constants/prompts';
-import type { GeminiAnalysisResponse, SentimentLabel, RawGeminiResponse } from '../types/ai';
+import { ApiError } from '../utils/errors.js';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { config } from '../config/index.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { AI_CONFIG } from '../constants/ai.js';
+import { buildGeminiPrompt } from '../constants/prompts.js';
+import type { GeminiAnalysisResponse, SentimentLabel, RawGeminiResponse } from '../types/ai.js';
 
 export class AiService {
   private genAI: GoogleGenerativeAI;

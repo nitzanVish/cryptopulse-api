@@ -3,8 +3,8 @@
  */
 
 import mongoose, { Schema, Document } from 'mongoose';
-import type { SentimentAnalysisResult } from '../types/sentiment';
-import { AI_CONFIG } from '../constants/ai';
+import type { SentimentAnalysisResult } from '../types/sentiment.js';
+import { AI_CONFIG } from '../constants/ai.js';
 
 export interface ISentiment extends Document, Omit<SentimentAnalysisResult, 'analyzedAt'> {
   analyzedAt: Date;

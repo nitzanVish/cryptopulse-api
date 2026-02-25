@@ -3,9 +3,9 @@
  */
 
 import mongoose, { ConnectOptions } from 'mongoose';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { config } from '../config';
-import { DATABASE_CONFIG } from '../constants/database';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { config } from '../config/index.js';
+import { DATABASE_CONFIG } from '../constants/database.js';
 
 class DatabaseService {
   /**

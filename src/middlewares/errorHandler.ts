@@ -3,12 +3,12 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { config } from '../config';
-import { MESSAGES } from '../constants/messages';
-import { HTTP_STATUS } from '../constants/httpStatus';
-import { normalizeMongoError } from '../utils/mongoErrorHandler';
-import { AppError } from '../utils/errors';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { config } from '../config/index.js';
+import { MESSAGES } from '../constants/messages.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { normalizeMongoError } from '../utils/mongoErrorHandler.js';
+import { AppError } from '../utils/errors.js';
 
 export const globalErrorHandler = (
   err: any,

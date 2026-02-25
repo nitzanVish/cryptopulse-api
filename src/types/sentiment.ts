@@ -2,7 +2,7 @@
  * Sentiment-related type definitions
  */
 
-import type { NewsHeadline } from './news';
+import type { NewsHeadline } from './news.js';
 
 export interface SentimentAnalysisResult {
   symbol: string;

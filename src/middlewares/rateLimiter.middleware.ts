@@ -4,9 +4,9 @@
  */
 
 import rateLimit from 'express-rate-limit';
-import { config } from '../config';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { HTTP_STATUS } from '../constants/httpStatus';
+import { config } from '../config/index.js';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
 
 /**
  * Global rate limiter for all API endpoints

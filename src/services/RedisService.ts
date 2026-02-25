@@ -3,9 +3,9 @@
  */
 
 import Redis, { RedisOptions } from 'ioredis';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { config } from '../config';
-import { REDIS_CONFIG } from '../constants/redis';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { config } from '../config/index.js';
+import { REDIS_CONFIG } from '../constants/redis.js';
 
 class RedisService {
   private static client: Redis | null = null;

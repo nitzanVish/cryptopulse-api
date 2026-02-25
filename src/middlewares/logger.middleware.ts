@@ -3,8 +3,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { LoggerServiceInstance } from '../utils/LoggerService';
-import { HTTP_STATUS } from '../constants/httpStatus';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
