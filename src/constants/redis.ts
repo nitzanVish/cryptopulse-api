@@ -38,5 +38,5 @@ export const REDIS_CONFIG = {
  */
 export const SCHEDULER_LOCK = {
   KEY: 'scheduler:lock:sentiment_dispatch',
-  TTL_SECONDS: 30 * 60, // 30 minutes - covers clock skew and prevents late executions
+  TTL_SECONDS: 60 * 60, // 60 minutes - covers one full analysis cycle window
 } as const;

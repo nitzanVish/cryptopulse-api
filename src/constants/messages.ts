@@ -17,7 +17,14 @@ export const MESSAGES = {
       VALIDATION_ERROR: (errors: string[]) => `Invalid input data. ${errors.join('. ')}`,
     },
   },
+  HEALTH: {
+    CHECK_FAILED: 'Health check failed',
+  },
   SENTIMENT: {
     INSUFFICIENT_DATA: 'Insufficient news data available for analysis.',
+  },
+  ADMIN: {
+    SENTIMENT_STATUS_NOT_CONFIGURED: 'Admin sentiment status is not configured (ADMIN_SENTIMENT_STATUS_TOKEN not set)',
+    INVALID_OR_MISSING_TOKEN: 'Invalid or missing admin token',
   },
 } as const;

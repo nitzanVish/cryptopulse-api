@@ -12,6 +12,7 @@ import { LoggerServiceInstance } from './utils/LoggerService.js';
 import DatabaseService from './services/DatabaseService.js';
 import RedisService from './services/RedisService.js';
 import sentimentRoutes from './routes/sentimentRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import sentimentWorker from './jobs/worker.js';
 import sentimentScheduler from './jobs/scheduler.js';
 import { requestLogger } from './middlewares/logger.middleware.js';
@@ -93,6 +94,7 @@ export class App {
 
     // API routes
     this.app.use('/api/v1/sentiment', sentimentRoutes);
+    this.app.use('/api/v1/admin', adminRoutes);
 
     // 404 Catch-all - Must be last route
     this.app.all('*', (req: Request, _res: Response, next: NextFunction) => {

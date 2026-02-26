@@ -54,7 +54,9 @@ class SentimentScheduler {
    */
   private async handleCronTick(isInitialRun = false): Promise<void> {
     try {
-      LoggerServiceInstance.debug(`Attempting to acquire lock: ${SCHEDULER_LOCK.KEY}`);
+      const cycleId = this.getCurrentCycleId();
+
+      LoggerServiceInstance.debug(`Attempting to acquire scheduler lock with key: ${SCHEDULER_LOCK.KEY}`);
       const acquired = await RedisService.getClient().set(
         SCHEDULER_LOCK.KEY,
         `LOCKED_BY_${process.env.HOSTNAME || process.pid || 'UNKNOWN'}`,
@@ -66,12 +68,12 @@ class SentimentScheduler {
 
       if (acquired !== 'OK') {
         const context = isInitialRun ? 'Initial run' : 'Cron tick';
-        LoggerServiceInstance.debug(`🔒 ${context}: Lock exists. Another instance is handling this. Skipping.`);
+        LoggerServiceInstance.debug(`🔒 ${context}: Scheduler lock exists. Another instance is handling this. Skipping.`);
         return;
       }
 
-      LoggerServiceInstance.info(`🔐 Lock acquired (${isInitialRun ? 'Startup' : 'Cron'}). Dispatching jobs...`);
-      await this.dispatchJobs();
+      LoggerServiceInstance.info(`🔐 Scheduler lock acquired (${isInitialRun ? 'Startup' : 'Cron'}). Dispatching jobs for cycle ${cycleId}...`);
+      await this.dispatchJobs(cycleId);
       // Lock expires automatically via TTL to prevent late servers from running duplicates
 
     } catch (error) {
@@ -79,7 +81,14 @@ class SentimentScheduler {
     }
   }
 
-  private async dispatchJobs(): Promise<void> {
+  private getCurrentCycleId(): string {
+    // Round down to the start of the current hour (UTC) to get a simple, deterministic cycleId.
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+    return now.toISOString(); // e.g. 2026-02-26T12:00:00.000Z
+  }
+
+  private async dispatchJobs(cycleId: string): Promise<void> {
     try {
       const enabledCoins = await coinConfigService.getEnabledCoins();
 
@@ -88,12 +97,12 @@ class SentimentScheduler {
         return;
       }
 
-      LoggerServiceInstance.info(`Found ${enabledCoins.length} active coins to analyze.`);
+      LoggerServiceInstance.info(`Found ${enabledCoins.length} active coins to analyze for cycle ${cycleId}.`);
 
       const symbols = enabledCoins.map((coin) => coin.symbol);
-      await sentimentQueue.addJobs(symbols);
+      await sentimentQueue.addJobs(symbols, cycleId);
 
-      LoggerServiceInstance.info(`🚀 Successfully dispatched jobs for: ${symbols.join(', ')}`);
+      LoggerServiceInstance.info(`🚀 Successfully dispatched jobs for cycle ${cycleId}: ${symbols.join(', ')}`);
 
     } catch (error) {
       LoggerServiceInstance.error('❌ Failed to dispatch jobs:', error);

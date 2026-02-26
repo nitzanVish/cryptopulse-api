@@ -41,6 +41,9 @@ export const config = {
   logging: {
     level: env.LOG_LEVEL,
   },
+  admin: {
+    sentimentStatusToken: env.ADMIN_SENTIMENT_STATUS_TOKEN,
+  },
   isProduction: env.NODE_ENV === 'production',
   isDevelopment: env.NODE_ENV === 'development',
 };

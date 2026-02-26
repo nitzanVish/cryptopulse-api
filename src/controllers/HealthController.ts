@@ -8,13 +8,15 @@ import RedisService from '../services/RedisService.js';
 import sentimentQueue from '../jobs/queue.js';
 import { HEALTH_STATUS } from '../constants/health.js';
 import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { MESSAGES } from '../constants/messages.js';
+import type { HealthResponse } from '../types/api.js';
 
 export class HealthController {
   /**
    * Health check endpoint
    * GET /health
    */
-  static async check(_req: Request, res: Response): Promise<void> {
+  static async check(_req: Request, res: Response<HealthResponse>): Promise<void> {
     try {
       // Check MongoDB connection
       const mongoStatus = DatabaseService.getConnectionStatus() 
@@ -42,22 +44,20 @@ export class HealthController {
         && redisStatus === HEALTH_STATUS.UP 
         && bullmqStatus === HEALTH_STATUS.UP;
 
-      res.status(isHealthy ? HTTP_STATUS.OK : HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+      const response: HealthResponse = {
         status: isHealthy ? HEALTH_STATUS.HEALTHY : HEALTH_STATUS.UNHEALTHY,
         timestamp: new Date().toISOString(),
-        services: {
-          database: mongoStatus,
-          redis: redisStatus,
-          bullmq: bullmqStatus,
-        },
-      });
+        services: { database: mongoStatus, redis: redisStatus, bullmq: bullmqStatus },
+      };
+      res.status(isHealthy ? HTTP_STATUS.OK : HTTP_STATUS.SERVICE_UNAVAILABLE).json(response);
     } catch (error) {
-      // If health check itself fails, return unhealthy
-      res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+      const response: HealthResponse = {
         status: HEALTH_STATUS.UNHEALTHY,
         timestamp: new Date().toISOString(),
-        error: 'Health check failed',
-      });
+        services: { database: HEALTH_STATUS.DOWN, redis: HEALTH_STATUS.DOWN, bullmq: HEALTH_STATUS.DOWN },
+        error: MESSAGES.HEALTH.CHECK_FAILED,
+      };
+      res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json(response);
     }
   }
 }

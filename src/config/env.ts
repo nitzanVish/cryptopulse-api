@@ -43,6 +43,9 @@ const envSchema = z.object({
   
   // Logging
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+  // Admin API (optional: when set, GET /api/v1/admin/sentiment/status requires this token)
+  ADMIN_SENTIMENT_STATUS_TOKEN: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

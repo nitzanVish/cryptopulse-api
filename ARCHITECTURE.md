@@ -64,19 +64,42 @@ Because of the 24-hour delay on NewsAPI's free tier, the fallback requests a **4
 
 ---
 
-## 5. Distributed Lock — Preventing Cron Duplication
+## 5. Distributed Lock & Cycle ID — Preventing Cron Duplication
 
 **Challenge:** In a horizontally scaled environment (e.g., Kubernetes with multiple Node.js replicas), the Cron Job would fire simultaneously on every instance — leading to duplicate jobs in the queue and wasted AI quota.
 
-**Solution:** A **Redis Distributed Lock** using the atomic `SET NX EX` command:
+**Solution:** A **Redis Distributed Lock** using the atomic `SET NX EX` command and a simple, deterministic Cycle ID stored only in BullMQ jobs:
 
 ```
-SET scheduler:lock "LOCKED_BY_<hostname|pid>" EX <ttl> NX
+SET scheduler:lock:sentiment_dispatch "LOCKED_BY_<hostname|pid>" EX <ttl> NX
 ```
 
-- Only the first instance to acquire the lock dispatches jobs.
-- All other instances detect the lock and skip silently.
-- The lock **expires automatically via TTL** — no manual release needed, which prevents deadlocks if a server crashes while holding the lock.
+- **Cycle ID Calculation (Jobs Only):**  
+  - On each Cron tick, the scheduler computes a `cycleId` by rounding the current time down to the start of the current hour (UTC):  
+    `const now = new Date(); now.setMinutes(0, 0, 0); const cycleId = now.toISOString();`  
+  - Example result: `2026-02-26T12:00:00.000Z`.
+
+- **Single Redis Lock:**  
+  - The scheduler uses a single lock key `scheduler:lock:sentiment_dispatch` with a TTL of **60 minutes**.
+  - Only the first instance to acquire the lock dispatches jobs.
+  - All other instances detect the lock and skip silently.
+  - The lock **expires automatically via TTL** — no manual release needed, which prevents deadlocks if a server crashes while holding the lock.
+
+- **Job De-duplication in BullMQ (Per Cycle):**  
+  - Each sentiment analysis job uses a `jobId` composed of the job name, the symbol, and the `cycleId` (e.g. `analyze-sentiment-BTC-2026-02-26T12:00:00.000Z`).
+  - If multiple servers try to enqueue the same symbol for the same cycle, BullMQ treats them as the same job and avoids duplicates.
+
+---
+
+## 5b. Admin API — Queue Status & Token Protection
+
+**Purpose:** Allow operators to inspect the sentiment queue (waiting, active, completed, failed jobs) and see per-job cycleId, symbol, and status without exposing the API publicly.
+
+**Endpoint:** `GET /api/v1/admin/sentiment/status`  
+
+**Protection:** When `ADMIN_SENTIMENT_STATUS_TOKEN` is set, the request must include that token via `Authorization: Bearer <token>` or `X-Admin-Token: <token>`. When the token is not set: the endpoint is open in development; in production it returns `503 Service Unavailable` with a message that admin is not configured.
+
+**Response:** JSON with `stats` (counts waiting/active/completed/failed) and `jobs`: an array of `{ jobId, symbol, cycleId, status, finishedAt, failedReason }` so you can see which cycle each job belongs to and whether it completed or failed.
 
 ---
 

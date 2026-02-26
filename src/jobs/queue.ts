@@ -7,7 +7,7 @@ import RedisService from '../services/RedisService.js';
 import { config } from '../config/index.js';
 import { LoggerServiceInstance } from '../utils/LoggerService.js';
 import type { JobData } from '../types/job.js';
-import { JOB_NAMES, QUEUE_NAMES } from '../constants/job.js';
+import { JOB_NAMES, QUEUE_NAMES, REMOVE_ON_COMPLETE, REMOVE_ON_FAIL, BACKOFF_TYPE } from '../constants/job.js';
 
 class SentimentQueue {
   private queue: Queue<JobData>;
@@ -18,15 +18,13 @@ class SentimentQueue {
       defaultJobOptions: {
         attempts: config.jobs.retryAttempts,
         backoff: {
-          type: 'exponential',
+          type: BACKOFF_TYPE,
           delay: config.jobs.backoffDelay,
         },
         removeOnComplete: config.isDevelopment
-          ? { count: 0, age: 1 } // Development: Remove immediately (after 1 second)
-          : { count: 100, age: 3600 }, // Production: Keep for 1 hour (important for debugging and multi-instance safety)
-        removeOnFail: {
-          age: 24 * 3600, // Keep failed jobs for 24 hours (important for debugging)
-        },
+          ? REMOVE_ON_COMPLETE.development
+          : REMOVE_ON_COMPLETE.production,
+        removeOnFail: REMOVE_ON_FAIL,
       },
     });
 
@@ -37,11 +35,11 @@ class SentimentQueue {
    * Add a sentiment analysis job for a symbol
    * Uses symbol-based jobId to prevent duplicates (if job with same symbol exists, it will be replaced)
    */
-  async addJob(symbol: string): Promise<void> {
+  async addJob(symbol: string, cycleId: string): Promise<void> {
     try {
       const symbolUpper = symbol.toUpperCase();
       await this.queue.add(JOB_NAMES.ANALYZE_SENTIMENT, { symbol: symbolUpper }, {
-        jobId: `${JOB_NAMES.ANALYZE_SENTIMENT}-${symbolUpper}`, // Unique jobId per symbol prevents duplicates
+        jobId: `${JOB_NAMES.ANALYZE_SENTIMENT}-${symbolUpper}-${cycleId}`, // Unique per symbol + cycle prevents duplicates across instances
       });
       LoggerServiceInstance.debug(`Added sentiment analysis job for ${symbol}`);
     } catch (error) {
@@ -54,7 +52,7 @@ class SentimentQueue {
    * Add multiple jobs for multiple symbols
    * Uses symbol-based jobId to prevent duplicates (if job with same symbol exists, it will be replaced)
    */
-  async addJobs(symbols: string[]): Promise<void> {
+  async addJobs(symbols: string[], cycleId: string): Promise<void> {
     if (symbols.length === 0) {
       LoggerServiceInstance.debug('No symbols provided, skipping job creation');
       return;
@@ -67,7 +65,7 @@ class SentimentQueue {
           name: JOB_NAMES.ANALYZE_SENTIMENT,
           data: { symbol: symbolUpper },
           opts: {
-            jobId: `${JOB_NAMES.ANALYZE_SENTIMENT}-${symbolUpper}`, // Unique jobId per symbol prevents duplicates
+            jobId: `${JOB_NAMES.ANALYZE_SENTIMENT}-${symbolUpper}-${cycleId}`, // Unique jobId per symbol + cycle prevents duplicates across instances
           },
         };
       });

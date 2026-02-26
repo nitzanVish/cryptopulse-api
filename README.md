@@ -171,6 +171,32 @@ Response:
 ]
 ```
 
+### Admin — Queue Status (Protected)
+```
+GET /api/v1/admin/sentiment/status
+```
+
+Requires `Authorization: Bearer <token>` or `X-Admin-Token: <token>` when `ADMIN_SENTIMENT_STATUS_TOKEN` is set. If the token is not set: open in development; returns `503 Service Unavailable` in production.
+
+Optional query: `?limit=100` (default 100, max 500).
+
+Response:
+```json
+{
+  "stats": { "waiting": 0, "active": 1, "completed": 15, "failed": 0 },
+  "jobs": [
+    {
+      "jobId": "analyze-sentiment-BTC-2026-02-26T12:00:00.000Z",
+      "symbol": "BTC",
+      "cycleId": "2026-02-26T12:00:00.000Z",
+      "status": "completed",
+      "finishedAt": "2026-02-26T12:05:00.000Z",
+      "failedReason": null
+    }
+  ]
+}
+```
+
 ## 🔧 Configuration Options
 
 ### Environment Variables
@@ -196,6 +222,7 @@ Response:
 | `RATE_LIMIT_WINDOW_MS` | HTTP rate limit window (ms) | `900000` (15 min) |
 | `RATE_LIMIT_MAX_REQUESTS` | Max HTTP requests per window | `100` |
 | `LOG_LEVEL` | Logging level | `info` |
+| `ADMIN_SENTIMENT_STATUS_TOKEN` | Token for `GET /api/v1/admin/sentiment/status` (Bearer or X-Admin-Token) | Optional |
 
 \* At least one of `NEWS_API_KEY` or `CRYPTOCOMPARE_API_KEY` must be provided.
 

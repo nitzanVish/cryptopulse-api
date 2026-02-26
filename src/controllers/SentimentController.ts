@@ -5,6 +5,7 @@
 import { Request, Response, NextFunction } from 'express';
 import sentimentService from '../services/SentimentService.js';
 import { GetSentimentDto } from '../dtos/sentiment.dto.js';
+import type { SentimentResponse } from '../types/sentiment.js';
 
 export class SentimentController {
   /**
@@ -12,10 +13,10 @@ export class SentimentController {
    * GET /api/v1/sentiment/:symbol
    * Params are validated by middleware before reaching this handler
    */
-  getSentiment = async (req: Request<GetSentimentDto['params']>, res: Response, next: NextFunction): Promise<void> => {
+  getSentiment = async (req: Request<GetSentimentDto['params']>, res: Response<SentimentResponse>, next: NextFunction): Promise<void> => {
     try {
       const { symbol } = req.params;
-      const response = await sentimentService.getSentiment(symbol);
+      const response: SentimentResponse = await sentimentService.getSentiment(symbol);
       res.json(response);
     } catch (error) {
       next(error);
@@ -26,9 +27,9 @@ export class SentimentController {
    * Get all sentiments
    * GET /api/v1/sentiment
    */
-  getAllSentiments = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getAllSentiments = async (_req: Request, res: Response<SentimentResponse[]>, next: NextFunction): Promise<void> => {
     try {
-      const response = await sentimentService.getAllSentiments();
+      const response: SentimentResponse[] = await sentimentService.getAllSentiments();
       res.json(response);
     } catch (error) {
       next(error);
