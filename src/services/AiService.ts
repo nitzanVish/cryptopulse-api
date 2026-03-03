@@ -109,29 +109,70 @@ export class AiService {
 
   /**
    * Parse and validate the Gemini response
+   * Handles: raw JSON, markdown-wrapped (```json ... ```), and array of analyses
    */
   private parseResponse(text: string): GeminiAnalysisResponse {
     try {
-      // Clean any Markdown remnants (Gemini sometimes wraps JSON in code blocks)
-      const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      
-      const parsed: RawGeminiResponse = JSON.parse(cleanText);
+      let cleanText = text.trim();
+      // Strip markdown code fences (```json ... ``` or ``` ... ```)
+      const codeFenceMatch = cleanText.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+      if (codeFenceMatch) {
+        cleanText = codeFenceMatch[1].trim();
+      }
 
-      // Validate and normalize each field
-      const sentimentScore = this.normalizeSentimentScore(parsed.sentimentScore);
-      const sentimentLabel = this.normalizeSentimentLabel(parsed.sentimentLabel);
-      const summary = this.normalizeSummary(parsed.summary, AI_CONFIG.ANALYSIS_COMPLETED_MESSAGE);
+      // Try to parse as JSON (object or array)
+      const parsed = JSON.parse(cleanText) as RawGeminiResponse | RawGeminiResponse[];
+
+      const single = Array.isArray(parsed) ? this.aggregateAnalyses(parsed) : parsed;
+
+      const sentimentScore = this.normalizeSentimentScore(single.sentimentScore);
+      const sentimentLabel = this.normalizeSentimentLabel(single.sentimentLabel);
+      const summary = this.normalizeSummary(single.summary, AI_CONFIG.ANALYSIS_COMPLETED_MESSAGE);
 
       return {
         sentimentScore,
         sentimentLabel,
         summary,
       };
-
     } catch (error) {
+      // Fallback: try extracting first JSON object/array
+      try {
+        const jsonMatch = text.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+        if (jsonMatch) {
+          return this.parseResponse(jsonMatch[0]);
+        }
+      } catch {
+        // ignore
+      }
       LoggerServiceInstance.error('Failed to parse Gemini JSON response', { text, error });
       throw new ApiError('Invalid JSON format from AI', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  /** Aggregate array of per-headline analyses into a single response */
+  private aggregateAnalyses(items: RawGeminiResponse[]): RawGeminiResponse {
+    const valid = items.filter((i): i is RawGeminiResponse => i != null && typeof i === 'object');
+    if (valid.length === 0) {
+      return {
+        sentimentScore: AI_CONFIG.DEFAULT_SENTIMENT_SCORE,
+        sentimentLabel: AI_CONFIG.DEFAULT_SENTIMENT_LABEL,
+        summary: AI_CONFIG.ANALYSIS_COMPLETED_MESSAGE,
+      };
+    }
+    const scores = valid.map((i) =>
+      typeof i.sentimentScore === 'number' ? i.sentimentScore : AI_CONFIG.DEFAULT_SENTIMENT_SCORE
+    );
+    const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    const labels = valid.map((i) => this.normalizeSentimentLabel(i.sentimentLabel));
+    const labelCounts = labels.reduce<Record<string, number>>((acc, l) => {
+      acc[l] = (acc[l] ?? 0) + 1;
+      return acc;
+    }, {});
+    const dominantLabel =
+      Object.entries(labelCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? AI_CONFIG.DEFAULT_SENTIMENT_LABEL;
+    const firstSummary = valid.find((i) => typeof i.summary === 'string' && i.summary.trim());
+    const summary = firstSummary?.summary?.trim() ?? AI_CONFIG.ANALYSIS_COMPLETED_MESSAGE;
+    return { sentimentScore: avgScore, sentimentLabel: dominantLabel, summary };
   }
 }
 

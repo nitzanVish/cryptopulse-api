@@ -4,6 +4,12 @@
 
 import type { AdminJobStatusItem } from './job.js';
 
+/** POST /api/v1/sentiment/analyze response (202 Accepted) */
+export interface AnalyzeResponse {
+  queued: string[];
+  skipped: string[];
+}
+
 /** GET /api/v1/admin/sentiment/status response */
 export interface AdminStatusResponse {
   stats: { waiting: number; active: number; completed: number; failed: number };

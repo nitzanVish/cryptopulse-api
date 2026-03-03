@@ -4,6 +4,7 @@
  */
 import cron from 'node-cron';
 import { LoggerServiceInstance } from '../utils/LoggerService.js';
+import { getCurrentCycleId } from '../utils/cycleId.js';
 import { config } from '../config/index.js';
 import RedisService from '../services/RedisService.js';
 import sentimentQueue from './queue.js';
@@ -54,7 +55,7 @@ class SentimentScheduler {
    */
   private async handleCronTick(isInitialRun = false): Promise<void> {
     try {
-      const cycleId = this.getCurrentCycleId();
+      const cycleId = getCurrentCycleId();
 
       LoggerServiceInstance.debug(`Attempting to acquire scheduler lock with key: ${SCHEDULER_LOCK.KEY}`);
       const acquired = await RedisService.getClient().set(
@@ -79,13 +80,6 @@ class SentimentScheduler {
     } catch (error) {
       LoggerServiceInstance.error('❌ Error in cron execution flow:', error);
     }
-  }
-
-  private getCurrentCycleId(): string {
-    // Round down to the start of the current hour (UTC) to get a simple, deterministic cycleId.
-    const now = new Date();
-    now.setMinutes(0, 0, 0);
-    return now.toISOString(); // e.g. 2026-02-26T12:00:00.000Z
   }
 
   private async dispatchJobs(cycleId: string): Promise<void> {

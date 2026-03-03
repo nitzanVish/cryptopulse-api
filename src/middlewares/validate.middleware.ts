@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
 import { AppError } from '../utils/errors.js';
 import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { LoggerServiceInstance } from '../utils/LoggerService.js';
 
 /**
  * Generic validation middleware that validates body, query, and params
@@ -29,8 +30,12 @@ export const validate = (schema: AnyZodObject) =>
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        // Format error messages to be readable
         const messages = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`);
+        LoggerServiceInstance.warn('Validation failed', {
+          path: req.path,
+          body: req.body,
+          errors: messages,
+        });
         next(new AppError(`Validation Error: ${messages.join(', ')}`, HTTP_STATUS.BAD_REQUEST));
       } else {
         next(error);

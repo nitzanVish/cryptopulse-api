@@ -63,6 +63,27 @@ export class SentimentRepository {
   }
 
   /**
+   * Returns a Set of symbols that already have a recent sentiment record
+   * within the given time window — these will be skipped in on-demand analysis
+   */
+  async findRecentBySymbols(symbols: string[], withinMs: number): Promise<Set<string>> {
+    try {
+      const since = new Date(Date.now() - withinMs);
+      const results = await Sentiment.find({
+        symbol: { $in: symbols.map((s) => s.toUpperCase()) },
+        analyzedAt: { $gte: since },
+      })
+        .select('symbol')
+        .lean<{ symbol: string }[]>();
+
+      return new Set(results.map((r) => r.symbol.toUpperCase()));
+    } catch (error) {
+      LoggerServiceInstance.error('Error finding recent sentiments by symbols:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get all sentiments
    */
   async findAll(): Promise<SentimentAnalysisResult[]> {

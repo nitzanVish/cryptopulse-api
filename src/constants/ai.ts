@@ -4,7 +4,7 @@
 
 export const AI_CONFIG = {
   // Gemini model configuration
-  MODEL_NAME: 'gemini-2.5-flash',
+  MODEL_NAME: 'gemini-2.5-flash-lite',
   
   // Default/fallback values
   DEFAULT_SENTIMENT_SCORE: 50,
